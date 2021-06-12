@@ -32,7 +32,7 @@ def prediction(row):
     df_prep = scaler.transform(one_hot_enc.transform(prep_pipe.transform(df)).toarray())
     prediction = np.expm1(model.predict(df_prep))[0]
 
-    return {'Predicted Item Outlet Sales': prediction}
+    return {'Predicted House Price': prediction}
 
 
 if __name__ == "__main__":
