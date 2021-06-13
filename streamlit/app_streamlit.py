@@ -179,16 +179,6 @@ def train():
     }
 
     models_to_train = {
-        'Ridge': Ridge(),
-        'Lasso': Lasso(),
-        'ElasticNet': ElasticNet(),
-        'Random Forest': RandomForestRegressor(n_jobs=-1),
-        'KNeighbors Regressor': KNeighborsRegressor(n_jobs=-1),
-        'Support Vector Regressor': SVR(),
-        'XGBoost Regressor': XGBRegressor(n_jobs=-1),
-        'CatBoost Regressor': CatBoostRegressor(),
-        'LGBM Regressor': LGBMRegressor(),
-        'ExtraTrees Regressor': ExtraTreesRegressor(n_jobs=-1),
         'Ridge tuned': Ridge(alpha=18.0, solver='svd'),
         'Lasso tuned': Lasso(alpha=0.0005040816326530613),
         'ElasticNet tuned': ElasticNet(alpha=0.0009081632653061226),
@@ -230,7 +220,7 @@ def train():
 
     del models_to_train, models_cross_val, trained_models, df_train, X_train_prep, y, lgbm_model, xgbm_model
     gc.collect()
-    return cross_val_scores, train_scores
+    return cross_val_scores
 
 def data_analysis():
     st.title('Data Analysis')
