@@ -113,7 +113,7 @@ def get_feature_names(column_transformer):
 
 def main_section():
     st.title('House Prices Prediction Project')
-    background_im = cv2.imread('background.jpeg')
+    background_im = cv2.imread('streamlit/images/background.jpeg')
     st.image(cv2.cvtColor(background_im, cv2.COLOR_BGR2RGB), use_column_width=True)
     st.markdown('**Data Analysis** section contains some basic information about the test and train data and allows to perform EDA '
                 'with multiple visualization options. In the **Models Performance** section comparison of different models is presented '
@@ -145,27 +145,27 @@ def preprocess_train(df_train):
 @st.cache
 def load_data(df_type):
     if df_type == 'Train':
-        df_train = pd.read_csv('train.csv')
+        df_train = pd.read_csv('streamlit/train.csv')
         return df_train
 
     elif df_type == 'Test':
-        df_test = pd.read_csv('test.csv')
+        df_test = pd.read_csv('streamlit/test.csv')
         return df_test
 
     elif df_type == 'Full':
-        df_train = pd.read_csv('train.csv')
-        df_test = pd.read_csv('test.csv')
+        df_train = pd.read_csv('streamlit/train.csv')
+        df_test = pd.read_csv('streamlit/test.csv')
         df_full = pd.concat([df_train, df_test]).reset_index(drop=True)
         del df_test, df_train
         return df_full
 
 @st.cache
 def train():
-    df_train = pd.read_csv('train.csv')
+    df_train = pd.read_csv('streamlit/train.csv')
     df_train, y = preprocess_train(df_train)
     X_train_prep = preprocess_general(df_train)
-    lgbm_model = pickle.load(open('lgb_model.pkl', 'rb'))
-    xgbm_model = pickle.load(open('xgb_model.pkl', 'rb'))
+    lgbm_model = pickle.load(open('streamlit/models/lgb_model.pkl', 'rb'))
+    xgbm_model = pickle.load(open('streamlit/models/xgb_model.pkl', 'rb'))
     models = {
         'Ridge': Ridge(),
         'Lasso': Lasso(),
@@ -192,7 +192,7 @@ def train():
     trained_models['LGBM Regressor tuned'] = lgbm_model.best_estimator_
     trained_models['XGBoost Regressor tuned'] = xgbm_model.best_estimator_
     trained_models['Stacking Regressor'] = pickle.load(open('stacking_model.pkl', 'rb'))
-    trained_models['Averaging Regressor'] = pickle.load(open('avg_model.pkl', 'rb'))
+    trained_models['Averaging Regressor'] = pickle.load(open('streamlit/models/avg_model.pkl', 'rb'))
     trained_models_cross_val_scores['Averaging Regressor'] = np.round(0.10829346967266587, 4)
     trained_models_cross_val_scores['Stacking Regressor'] = np.round(0.10749569312383064, 4)
 
@@ -318,8 +318,8 @@ def model_selection_and_performance():
 def feature_importances():
     st.title('Feature Importances')
     st.markdown('Feature importances were calculated on the preprocessed data!')
-    cat_model = pickle.load(open('cat_model.pkl', 'rb'))
-    df_train = pd.read_csv('train.csv')
+    cat_model = pickle.load(open('streamlit/models/cat_model.pkl', 'rb'))
+    df_train = pd.read_csv('streamlit/train.csv')
     df_train, y = preprocess_train(df_train)
     prep_pipe, _, _ = load_preprocessors()
     X_train = prep_pipe.transform(df_train)
@@ -348,7 +348,7 @@ def feature_importances():
     del cat_model, df_train, X_train, X_train_prep, X_train_prep_df
 
 def prediction_service():
-    df_test = pd.read_csv('test.csv')
+    df_test = pd.read_csv('streamlit/test.csv')
     model = pickle.load(open('stacking_model.pkl', 'rb'))
     selected_record = st.sidebar.selectbox('Select record for prediction', df_test.index)
     st.write('Selected record')
