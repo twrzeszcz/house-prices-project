@@ -166,7 +166,19 @@ def train():
     X_train_prep = preprocess_general(df_train)
     lgbm_model = pickle.load(open('streamlit/models/lgb_model.pkl', 'rb'))
     xgbm_model = pickle.load(open('streamlit/models/xgb_model.pkl', 'rb'))
-    models = {
+    models_cross_val = {
+        'Ridge': Ridge(),
+        'Lasso': Lasso(),
+        'ElasticNet': ElasticNet(),
+        'KNeighbors Regressor': KNeighborsRegressor(n_jobs=-1),
+        'Support Vector Regressor': SVR(),
+        'Ridge tuned': Ridge(alpha=18.0, solver='svd'),
+        'Lasso tuned': Lasso(alpha=0.0005040816326530613),
+        'ElasticNet tuned': ElasticNet(alpha=0.0009081632653061226),
+        'Support Vector Regressor tuned': SVR(C=0.014444444444444444, kernel='linear'),
+    }
+
+    models_to_train = {
         'Ridge': Ridge(),
         'Lasso': Lasso(),
         'ElasticNet': ElasticNet(),
@@ -181,29 +193,34 @@ def train():
         'Lasso tuned': Lasso(alpha=0.0005040816326530613),
         'ElasticNet tuned': ElasticNet(alpha=0.0009081632653061226),
         'Support Vector Regressor tuned': SVR(C=0.014444444444444444, kernel='linear'),
-        'XGBoost Regressor tuned': XGBRegressor(**xgbm_model.best_params_),
-        'LGBM Regressor tuned': LGBMRegressor(**lgbm_model.best_params_)
     }
 
     trained_models_cross_val_scores = {}
     trained_models_scores = {}
     trained_models = {}
 
+    trained_models_cross_val_scores['Random Forest Regressor'] = np.round(0.13740521398712335, 4)
+    trained_models_cross_val_scores['XGBoost Regressor'] = np.round(0.1292099819166186, 4)
+    trained_models_cross_val_scores['CatBoost Regressor'] = np.round(0.11208948975490034, 4)
+    trained_models_cross_val_scores['LGBM Regressor'] = np.round(0.12874397419320133, 4)
+    trained_models_cross_val_scores['ExtraTrees Regressor'] = np.round(0.1308816855267648, 4)
+    trained_models_cross_val_scores['XGBoost Regressor tuned'] = np.round(0.11346169284890685, 4)
+    trained_models_cross_val_scores['LGBM Regressor tuned'] = np.round(0.11824393368870169, 4)
     trained_models['LGBM Regressor tuned'] = lgbm_model.best_estimator_
     trained_models['XGBoost Regressor tuned'] = xgbm_model.best_estimator_
     trained_models['Stacking Regressor'] = pickle.load(open('stacking_model.pkl', 'rb'))
     trained_models['Averaging Regressor'] = pickle.load(open('streamlit/models/avg_model.pkl', 'rb'))
+
+
     trained_models_cross_val_scores['Averaging Regressor'] = np.round(0.10829346967266587, 4)
     trained_models_cross_val_scores['Stacking Regressor'] = np.round(0.10749569312383064, 4)
 
-    for name, algo in models.items():
+    for name, algo in models_cross_val.items():
         score = np.round(np.sqrt(-cross_val_score(algo, X_train_prep, y,
                                          scoring='neg_mean_squared_error', cv=5, n_jobs=-1)).mean(), 4)
         trained_models_cross_val_scores[name] = score
 
-    del models['XGBoost Regressor tuned']
-    del models['LGBM Regressor tuned']
-    for name, algo in models.items():
+    for name, algo in models_to_train.items():
         trained_models[name] = algo.fit(X_train_prep, y)
     for name, algo in trained_models.items():
         trained_models_scores[name] = np.sqrt(mean_squared_error(y, algo.predict(X_train_prep)))
@@ -211,7 +228,7 @@ def train():
     cross_val_scores = pd.DataFrame(list(trained_models_cross_val_scores.items()), columns=['Model', 'RMSLE']).set_index('Model').sort_values(by='RMSLE')
     train_scores = pd.DataFrame(list(trained_models_scores.items()), columns=['Model', 'RMSLE']).set_index('Model').sort_values(by='RMSLE')
 
-    del models, trained_models, df_train, X_train_prep, y, lgbm_model, xgbm_model
+    del models_to_train, models_cross_val, trained_models, df_train, X_train_prep, y, lgbm_model, xgbm_model
     gc.collect()
     return cross_val_scores, train_scores
 
