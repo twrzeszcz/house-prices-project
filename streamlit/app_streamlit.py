@@ -142,7 +142,7 @@ def preprocess_train(df_train):
 
     return df_train, y
 
-@st.cache
+
 def load_data(df_type):
     if df_type == 'Train':
         df_train = pd.read_csv('streamlit/train.csv')
@@ -159,7 +159,7 @@ def load_data(df_type):
         del df_test, df_train
         return df_full
 
-@st.cache
+
 def train():
     df_train = pd.read_csv('streamlit/train.csv')
     df_train, y = preprocess_train(df_train)
