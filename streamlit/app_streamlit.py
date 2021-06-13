@@ -220,7 +220,7 @@ def train():
 
     del models_to_train, models_cross_val, trained_models, df_train, X_train_prep, y, lgbm_model, xgbm_model
     gc.collect()
-    return cross_val_scores
+    return cross_val_scores, train_scores
 
 def data_analysis():
     st.title('Data Analysis')
