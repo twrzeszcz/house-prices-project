@@ -142,7 +142,7 @@ def preprocess_train(df_train):
 
     return df_train, y
 
-
+@st.cache
 def load_data(df_type):
     if df_type == 'Train':
         df_train = pd.read_csv('streamlit/train.csv')
@@ -158,7 +158,6 @@ def load_data(df_type):
         df_full = pd.concat([df_train, df_test]).reset_index(drop=True)
         del df_test, df_train
         return df_full
-
 
 def train():
     df_train = pd.read_csv('streamlit/train.csv')
@@ -246,6 +245,7 @@ def data_analysis():
         fig, ax = plt.subplots(figsize=(30,20))
         sns.heatmap(df.corr(), annot=True, ax=ax)
         st.pyplot(fig)
+        del fig, ax
     if df_type in ['Train', 'Full']:
         if st.sidebar.checkbox('Display correlations between features and target'):
             target_corr = df.corr()['SalePrice'].sort_values(ascending=False)
